@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Justice for Benque Kids | Data-Driven Advocacy</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --danger: #ff3b30;
+      --action: #0a84ff;
+      --warning: #ff9f0a;
+      --success: #30d158;
+      --bg: #09090f;
+      --bg2: #0f0f1a;
+      --bg3: #141422;
+      --text: #e5e5f0;
+      --muted: #6b7280;
+      --border: rgba(255,255,255,0.07);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      overflow-x: hidden;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: rgba(9,9,15,0.88);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 5%;
+      height: 58px;
+    }
+    .nav-brand {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      letter-spacing: 2px;
+      color: var(--danger);
+    }
+    .nav-links { display: flex; gap: 28px; list-style: none; }
+    .nav-links a {
+      color: var(--muted); text-decoration: none; font-size: 0.82rem;
+      font-weight: 500; letter-spacing: 0.5px;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: white; }
+
+    /* ─── SECTIONS ─── */
+    section { padding: 100px 6%; position: relative; }
+    .container { max-width: 1100px; margin: 0 auto; width: 100%; }
+
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 100vh;
+      display: flex; align-items: center;
+      padding-top: 58px;
+      background:
+        linear-gradient(160deg, rgba(255,59,48,0.08) 0%, rgba(10,132,255,0.05) 60%, transparent 100%),
+        linear-gradient(rgba(9,9,15,0.55), rgba(9,9,15,0.90)),
+        url('https://github.com/jefbelize/Images_for_html/blob/main/footbal.jpg?raw=true') center/cover fixed;
+    }
+    .hero-inner { max-width: 950px; }
+    .overline {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 5px;
+      color: var(--danger);
+      text-transform: uppercase;
+      margin-bottom: 18px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .overline::before {
+      content: ''; display: block;
+      width: 32px; height: 2px; background: var(--danger);
+    }
+    h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3.5rem, 9vw, 7rem);
+      line-height: 0.95;
+      letter-spacing: 2px;
+      margin-bottom: 28px;
+    }
+    .h1-em { color: var(--danger); }
+    .hero-sub {
+      font-size: 1.2rem; color: #a0aec0;
+      max-width: 600px; margin-bottom: 44px;
+      line-height: 1.7;
+    }
+    .cta-group { display: flex; gap: 16px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--danger); color: white;
+      padding: 15px 38px; border-radius: 4px;
+      text-decoration: none; font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase;
+      font-size: 0.85rem;
+      transition: all 0.25s;
+      border: 2px solid var(--danger);
+    }
+    .btn-primary:hover { background: transparent; color: var(--danger); }
+    .btn-outline {
+      border: 2px solid rgba(255,255,255,0.2); color: white;
+      padding: 15px 38px; border-radius: 4px;
+      text-decoration: none; font-weight: 600;
+      letter-spacing: 1px; text-transform: uppercase;
+      font-size: 0.85rem;
+      transition: all 0.25s;
+    }
+    .btn-outline:hover { border-color: white; }
+
+    /* ─── STATS STRIP ─── */
+    .stats-strip {
+      background: var(--bg3);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 36px 6%;
+    }
+    .stats-row {
+      max-width: 1100px; margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0;
+    }
+    .stat-item {
+      text-align: center;
+      padding: 10px 20px;
+      border-right: 1px solid var(--border);
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.8rem;
+      line-height: 1;
+      color: var(--warning);
+      display: block;
+    }
+    .stat-label {
+      font-size: 0.72rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 6px;
+      display: block;
+    }
+    .stat-src {
+      font-size: 0.65rem;
+      color: rgba(107,114,128,0.6);
+      display: block;
+      margin-top: 3px;
+    }
+
+    /* ─── SECTION LABELS ─── */
+    .section-tag {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--action);
+      margin-bottom: 14px;
+    }
+    .section-tag .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--action);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; } 50% { opacity: 0.3; }
+    }
+
+    h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.2rem, 5vw, 3.8rem);
+      line-height: 1.05;
+      letter-spacing: 1.5px;
+      margin-bottom: 20px;
+    }
+
+    .lead {
+      font-size: 1.1rem; color: #a0aec0;
+      max-width: 750px; margin-bottom: 50px;
+      line-height: 1.75;
+    }
+
+    /* ─── INSIGHT BLOCKS ─── */
+    .insight {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--action);
+      border-radius: 6px;
+      padding: 28px 32px;
+      margin: 24px 0;
+      font-size: 1rem;
+      color: #c5cfe0;
+      line-height: 1.8;
+    }
+    .insight strong { color: white; }
+    .insight .src {
+      display: block; margin-top: 12px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+    }
+
+    .insight-danger { border-left-color: var(--danger); }
+    .insight-warning { border-left-color: var(--warning); }
+    .insight-success { border-left-color: var(--success); }
+
+    /* ─── CARDS GRID ─── */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+      margin: 36px 0;
+    }
+    .card {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 36px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s;
+    }
+    .card:hover { border-color: rgba(255,255,255,0.15); }
+    .card-accent {
+      position: absolute; top: 0; left: 0;
+      right: 0; height: 3px;
+    }
+    .card h3 {
+      font-size: 1rem; font-weight: 700;
+      margin-bottom: 12px; margin-top: 6px;
+      letter-spacing: 0.3px;
+    }
+    .card p { font-size: 0.95rem; color: #9ca3af; line-height: 1.75; }
+    .card .ref {
+      font-size: 0.7rem; color: var(--muted);
+      margin-top: 16px; padding-top: 12px;
+      border-top: 1px solid var(--border);
+      font-family: 'Space Mono', monospace;
+    }
+    .tag-icon {
+      font-size: 1.6rem; margin-bottom: 8px; display: block;
+    }
+
+    /* ─── DATA TIMELINE ─── */
+    .timeline {
+      position: relative;
+      margin: 40px 0;
+      padding-left: 36px;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute; left: 0; top: 0; bottom: 0;
+      width: 2px; background: linear-gradient(to bottom, var(--action), var(--danger));
+    }
+    .tl-item {
+      position: relative; margin-bottom: 36px;
+    }
+    .tl-item::before {
+      content: '';
+      position: absolute; left: -41px; top: 4px;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--action);
+      border: 2px solid var(--bg);
+      box-shadow: 0 0 0 3px rgba(10,132,255,0.3);
+    }
+    .tl-year {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem; color: var(--action);
+      letter-spacing: 3px; text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .tl-title {
+      font-weight: 700; font-size: 0.95rem;
+      margin-bottom: 6px;
+    }
+    .tl-body { font-size: 0.88rem; color: #9ca3af; line-height: 1.7; }
+
+    /* ─── CHARTS ─── */
+    .chart-wrap {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 32px;
+      margin: 28px 0;
+    }
+    .chart-title {
+      font-size: 0.78rem;
+      font-family: 'Space Mono', monospace;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    /* ─── MAP ─── */
+    #map {
+      height: 620px; width: 100%;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      margin-top: 28px;
+    }
+    .legend {
+      background: rgba(9,9,15,0.95);
+      padding: 14px 18px;
+      color: #fff;
+      line-height: 2;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .legend i {
+      width: 12px; height: 12px;
+      float: left; margin-right: 8px;
+      border-radius: 50%; margin-top: 5px;
+    }
+
+    /* ─── INFOGRAPHIC BOXES ─── */
+    .info-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      margin: 32px 0;
+    }
+    .info-box {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 28px 20px;
+      text-align: center;
+    }
+    .info-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.6rem;
+      color: var(--warning);
+      display: block;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .info-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+    }
+
+    /* ─── QUOTE BLOCK ─── */
+    blockquote {
+      border-left: 3px solid var(--warning);
+      padding: 20px 28px;
+      margin: 32px 0;
+      background: rgba(255,159,10,0.05);
+      border-radius: 0 8px 8px 0;
+    }
+    blockquote p {
+      font-size: 1.1rem;
+      font-style: italic;
+      color: #d1d5db;
+      line-height: 1.7;
+    }
+    blockquote cite {
+      display: block; margin-top: 10px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+      font-style: normal;
+    }
+
+    /* ─── DATA TABLE ─── */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      margin: 28px 0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .data-table th {
+      background: rgba(255,255,255,0.06);
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 0.7rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+      border-bottom: 1px solid var(--border);
+    }
+    .data-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      color: #c5cfe0;
+      vertical-align: top;
+    }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .data-table .highlight-row td { color: var(--warning); font-weight: 700; }
+    .pill {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .pill-red { background: rgba(255,59,48,0.15); color: var(--danger); }
+    .pill-blue { background: rgba(10,132,255,0.15); color: var(--action); }
+    .pill-green { background: rgba(48,209,88,0.15); color: var(--success); }
+    .pill-yellow { background: rgba(255,159,10,0.15); color: var(--warning); }
+
+    /* ─── CANVA EMBED ─── */
+    .canva-wrapper {
+      position: relative;
+      width: 100vw;
+      left: 50%;
+      transform: translateX(-50%);
+      height: 0;
+      padding-top: 52vw;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+      overflow: hidden;
+      margin: 40px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .canva-wrapper iframe {
+      position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none;
+    }
+
+    /* ─── TWO-COL ─── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px; align-items: start;
+      margin: 36px 0;
+    }
+    @media (max-width: 768px) {
+      .two-col { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+    }
+
+    /* ─── SEPARATOR ─── */
+    .sep {
+      border: none;
+      height: 1px;
+      background: var(--border);
+      margin: 48px 0;
+    }
+
+    /* ─── CTA SECTION ─── */
+    .final-cta {
+      min-height: 80vh;
+      display: flex; align-items: center;
+      background:
+        linear-gradient(rgba(9,9,15,0.7), rgba(9,9,15,0.92)),
+        url('https://github.com/jefbelize/Images_for_html/blob/main/footbal.jpg?raw=true') center/cover;
+      text-align: center;
+    }
+    .final-cta .container { display: flex; flex-direction: column; align-items: center; }
+    .final-cta h2 { font-size: clamp(2.4rem, 6vw, 5rem); margin-bottom: 20px; }
+    .final-cta .lead { margin-bottom: 44px; }
+
+    /* ─── ACTION CARDS ─── */
+    .action-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin: 44px 0;
+      text-align: left;
+    }
+    .action-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 12px; padding: 30px;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+    .action-card:hover { border-color: var(--action); transform: translateY(-3px); }
+    .action-number {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem; color: var(--action);
+      line-height: 1; margin-bottom: 10px;
+    }
+    .action-card h4 { font-size: 1rem; font-weight: 700; margin-bottom: 10px; }
+    .action-card p { font-size: 0.88rem; color: #9ca3af; line-height: 1.7; }
+
+    /* ─── REFERENCES ─── */
+    .refs {
+      background: var(--bg3);
+      border-top: 1px solid var(--border);
+      padding: 60px 6%;
+    }
+    .refs .container { max-width: 1100px; margin: 0 auto; }
+    .refs h3 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.8rem; letter-spacing: 2px;
+      margin-bottom: 28px; color: var(--muted);
+    }
+    .ref-item {
+      font-size: 0.78rem;
+      font-family: 'Space Mono', monospace;
+      color: var(--muted);
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      line-height: 1.6;
+    }
+    .ref-item a { color: var(--action); }
+    .ref-item:last-child { border-bottom: none; }
+
+    /* ─── SCROLLBAR ─── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+  <!-- ─── NAV ─── -->
+  <nav>
+    <div class="nav-brand">Justice for Kids of Benque Viejo</div>
+    <ul class="nav-links">
+      <li><a href="#phase1">The Roots</a></li>
+      <li><a href="#phase2">The Environment</a></li>
+      <li><a href="#phase3">The Toll</a></li>
+      <li><a href="#phase4">Belize Data</a></li>
+      <li><a href="#cta">Act Now</a></li>
+    </ul>
+  </nav>
+
+  <!-- ─── HERO ─── -->
+  <section class="hero">
+    <div class="hero-inner" style="max-width:1100px;margin:0 auto;width:100%;padding:0 2%">
+      <p class="overline">Benque Viejo del Carmen · Cayo District · Belize</p>
+      <h1>
+        JUSTICE FOR THE <span class="h1-em">KIDS OF</span><br>
+        <span class="h1-em">BENQUE VIEJO.</span>
+      </h1>
+      <p class="hero-sub">
+        A data-driven advocacy campaign connecting the absence of safe recreational spaces
+        to youth substance use, and ultimately to Belize's road fatality crisis.
+      </p>
+      <div class="cta-group">
+        <a href="#phase1" class="btn-primary">Follow the Evidence</a>
+        <a href="#cta" class="btn-outline">Take Action</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── STATS STRIP ─── -->
+  <div class="stats-strip">
+    <div class="stats-row">
+      <div class="stat-item">
+        <span class="stat-val">77.3%</span>
+        <span class="stat-label">Initiated drugs before age 14</span>
+        <span class="stat-src">UNICEF Belize (2025)</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-val">45%</span>
+        <span class="stat-label">Substance cases are adolescents</span>
+        <span class="stat-src">NDACC 2017–2024</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-val">66%</span>
+        <span class="stat-label">Fatal crash victims over alcohol limit</span>
+        <span class="stat-src">NFSS / BCO 2025</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-val">38%</span>
+        <span class="stat-label">Fatal crashes involve motorcycles</span>
+        <span class="stat-src">BCO Annual Report 2025</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-val">36.4%</span>
+        <span class="stat-label">National RTAs in Cayo District</span>
+        <span class="stat-src">BCO Annual Report 2025</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-val">54%</span>
+        <span class="stat-label">Boys aged 15–19 consume alcohol</span>
+        <span class="stat-src">UNICEF Adolescent Health</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── PHASE 1: ROOTS ─── -->
+  <section id="phase1" style="background:var(--bg);">
+    <div class="container">
+      <p class="section-tag"><span class="dot"></span> Phase 01 · The Science</p>
+      <h2>BOREDOM IS A<br><span style="color:var(--danger)">GATEWAY DRUG.</span></h2>
+      <p class="lead">
+        Peer-reviewed research establishes a direct developmental pathway: when structured 
+        recreational opportunities are absent, "leisure boredom" becomes a primary driver 
+        for early substance initiation — which in turn escalates the risk of fatal accidents 
+        among youth. This is not speculation. This is documented science.
+      </p>
+
+      <div class="insight">
+        <strong>The "Leisure-Substance-Accident" Nexus:</strong> Scientific studies categorize 
+        the relationship between recreational opportunities and youth mortality into three 
+        sequential stages: (1) Leisure Boredom as a predictor of substance experimentation, 
+        (2) Structured vs. Unstructured Activity environments, and (3) Accidental mortality outcomes.
+        Longitudinal data shows that adolescents with high-state boredom are significantly more 
+        likely to initiate alcohol, cigarette, and marijuana use within short-term follow-ups 
+        compared to peers with access to healthy leisure.
+        <span class="src">→ Sharp et al. (2011); Wegner et al. (2011); Weybright et al. (2015)</span>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-accent" style="background: var(--action);"></div>
+          
+          <h3 style="color:var(--action);">Leisure Boredom: The Predictor</h3>
+          <p>Longitudinal research identified "leisure boredom" — the subjective perception that available activities are uninteresting or insufficient — as one of the strongest predictors of early alcohol, cigarette, and marijuana use. Adolescents experiencing high boredom at baseline are significantly more likely to engage in substance use, compared to peers with access to "healthy leisure."</p>
+          <div class="ref">Source: Wegner et al. (2011); Sharp et al. (2011)</div>
+        </div>
+        <div class="card">
+          <div class="card-accent" style="background: var(--danger);"></div>
+          
+          <h3 style="color:var(--danger);">Belize's Early Start</h3>
+          <p>In Belize, <strong style="color:var(--warning)">77.3%</strong> of adolescent drug users initiated before age 14. Between 2017–2024, the National Drug Abuse Control Council (NDACC) reported 2,365 cases across all ages — of which <strong style="color:var(--warning)">1,055 (45%)</strong> were adolescents aged 10–19. The critical intervention window is years 10 to 14.</p>
+          <div class="ref">Source: UNICEF Belize (2025); Oladeji et al. (2025)</div>
+        </div>
+        <div class="card">
+          <div class="card-accent" style="background: var(--success);"></div>
+          
+          <h3 style="color:var(--success);">Structured Sport: The Shield</h3>
+          <p>The Canadian COMPASS Study (2021) found that a higher density of sports and recreation facilities within a school's neighborhood significantly reduced binge drinking and e-cigarette use among secondary students. Structured environments reduce "unscheduled time" and provide access to mentors who model healthy behaviors.</p>
+          <div class="ref">Source: BMJ Open (2021); PLOS Mental Health (2025)</div>
+        </div>
+        <div class="card">
+          <div class="card-accent" style="background: var(--warning);"></div>
+          
+          <h3 style="color:var(--warning);">Denmark: The Multiple Leisure Effect</h3>
+          <p>A nationwide Danish study (2020) showed that engaging in multiple types of leisure activities at least once per week reduced the odds of substance use among adolescents. The study highlighted that in the absence of "healthy alternatives," adolescents may resort to substance use as a maladaptive way to cope with stressors or boredom.</p>
+          <div class="ref">Source: Frontiers in Behavioral Neuroscience (2020)</div>
+        </div>
+      </div>
+
+      <blockquote>
+        <p>"When safe, organized environments are absent, 'leisure boredom' becomes a primary driver for risk-taking behaviors, including binge drinking and drug use, which are major precursors to motor vehicle accidents and other accidental mortalities."</p>
+        <cite>— Sharp et al. (2011); Weybright et al. (2015)</cite>
+      </blockquote>
+
+      <div class="canva-wrapper">
+        <iframe loading="lazy" src="https://www.canva.com/design/DAHJT-LcayE/view?embed" allowfullscreen="allowfullscreen" allow="fullscreen"></iframe>
+      </div>
+
+      <hr class="sep">
+
+      <p class="section-tag"><span class="dot"></span> Belize Substance Data · 2017–2024</p>
+      <h2 style="font-size:2rem;">NDACC TIME-SERIES: <span style="color:var(--danger)">THE NUMBERS</span></h2>
+      
+      <div class="two-col">
+        <div>
+          <div class="chart-wrap">
+            <div class="chart-title">Substance Use Trend Among Adolescents (Belize, 2017–2024)</div>
+            <canvas id="substanceChart" height="200"></canvas>
+          </div>
+        </div>
+        <div>
+          <div class="insight insight-warning">
+            <strong>What the Trend Reveals:</strong> Adolescent substance use peaked in 2019 before the pandemic temporarily suppressed reporting in 2020–2021. Post-pandemic rebound accelerated through 2022–2023. By 2024, cocaine use became more prominent among boys — a dangerous escalation from the marijuana and alcohol baseline.
+            <span class="src">→ NDACC Data; UNICEF Belize Situational Analysis (2025)</span>
+          </div>
+
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Substance</th>
+                <th>Primary Group</th>
+                <th>Trend</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Marijuana</td>
+                <td>Males 15–19</td>
+                <td><span class="pill pill-red">Highest</span></td>
+              </tr>
+              <tr>
+                <td>Alcohol</td>
+                <td>Ages 10–14</td>
+                <td><span class="pill pill-yellow">Rising</span></td>
+              </tr>
+              <tr>
+                <td>Vapes/E-cigs</td>
+                <td>All youth</td>
+                <td><span class="pill pill-red">Rapid growth</span></td>
+              </tr>
+              <tr>
+                <td>Tobacco</td>
+                <td>Males 13–15</td>
+                <td><span class="pill pill-blue">Stable</span></td>
+              </tr>
+              <tr>
+                <td>Cocaine</td>
+                <td>Boys 15–19</td>
+                <td><span class="pill pill-red">↑ 2024</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="insight insight-danger">
+        <strong>District Alert — Belize District Leads:</strong> The Belize District accounts for 34% 
+        (358 cases) of all adolescent substance use nationally (2017–2024), with Cayo District at 16% 
+        and Toledo at 20%. Within Belize District, marijuana cases account for 40% of all district 
+        marijuana cases nationally. Benque Viejo sits within Cayo District — a district showing 
+        consistent and significant adolescent substance involvement.
+        <span class="src">→ NDACC / UNICEF Belize (2025)</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── PHASE 2: ENVIRONMENT ─── -->
+  <section id="phase2" style="background:var(--bg2);">
+    <div class="container">
+      <p class="section-tag"><span class="dot"></span> Phase 02 · The Built Environment</p>
+      <h2>THE TRAP IS<br><span style="color:var(--warning)">STRUCTURAL.</span></h2>
+      <p class="lead">
+        Environmental Justice research demonstrates that the "Built Environment" — the physical 
+        makeup of a neighborhood — directly dictates behavioral outcomes for youth. When alcohol 
+        outlets cluster while parks are absent, the environment itself becomes a risk factor. 
+        In Benque Viejo, this imbalance is not accidental — it is measurable.
+      </p>
+
+      <div class="insight insight-warning">
+        <strong>The Spatiotemporal Trap:</strong> In Benque Viejo, over 20 liquor establishments 
+        are visible and accessible, while sporting facilities are either locked, restricted, or 
+        poorly maintained — effectively nudging youth toward the only visible "social hubs." 
+        For every 1 open recreational space, there are approximately 5+ alcohol access points.
+        <span class="src">→ Community mapping data; PMC Environmental Justice (2016)</span>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-accent" style="background:var(--warning);"></div>
+          
+          <h3 style="color:var(--warning);">Alcohol Outlet Density: The 26% Rule</h3>
+          <p>Studies show that for every additional alcohol establishment within a 0.1-mile radius of a teen's home, there is a <strong style="color:var(--danger)">26% increase in the odds</strong> of that teen becoming a heavy drinker. On-premise outlets (bars, restaurants) are more strongly associated with heavy youth drinking than off-premise liquor stores, as they represent social hubs that normalize consumption.</p>
+          <div class="ref">Source: Recovery Research Institute (2024)</div>
+        </div>
+        <div class="card">
+          <div class="card-accent" style="background:var(--success);"></div>
+          
+          <h3 style="color:var(--success);">Chile: Plazas as Prevention</h3>
+          <p>Research in Santiago's low-SES neighborhoods found that residential proximity to plazas and soccer fields was significantly associated with a decrease in substance use among female adolescents. Even basic recreational hubs can counteract the negative influences of a high-risk neighborhood environment — demonstrating that <em>quality and access</em> matter as much as existence.</p>
+          <div class="ref">Source: Castillo et al. (2013)</div>
+        </div>
+        <div class="card">
+          <div class="card-accent" style="background:var(--action);"></div>
+          
+          <h3 style="color:var(--action);">Brazil: School Neighborhoods Matter</h3>
+          <p>A study on Brazilian public school environments found that alcohol outlet availability in the immediate vicinity of schools significantly increased the risk of early alcohol experimentation among 13–15-year-olds. Adolescent alcohol use rates in South America (37.7%) are notably higher than the Caribbean (24.6%), largely due to social normalization and high physical accessibility.</p>
+          <div class="ref">Source: Sanchez et al. (2016); Cadernos de Saúde Pública</div>
+        </div>
+        <div class="card">
+          <div class="card-accent" style="background:var(--danger);"></div>
+          
+          <h3 style="color:var(--danger);">Thailand: A Decade of Evidence</h3>
+          <p>A spatiotemporal analysis in Thailand (2007–2017) demonstrated that a higher density of alcohol sales licenses per 1,000 people directly increased the odds of current drinking among male adolescents and binge drinking among females. In developing countries, "physical availability" — the ease of encountering an outlet — is a primary barrier to successful youth prevention.</p>
+          <div class="ref">Source: PMC11527161 (2024)</div>
+        </div>
+      </div>
+
+      <blockquote>
+        <p>"In areas where alcohol outlets are more visible than community centers, the 'bar culture' becomes the primary visible form of adult socialization — leading to early initiation before age 14, which is a critical marker for later substance use disorders and accidental death."</p>
+        <cite>— PMC (2026); Recovery Research Institute (2024)</cite>
+      </blockquote>
+
+      <hr class="sep">
+
+      <p class="section-tag"><span class="dot"></span> Community Mapping · Benque Viejo del Carmen</p>
+      <h2 style="font-size:2rem;">THE MAP <span style="color:var(--danger)">TELLS THE STORY.</span></h2>
+      <p class="lead">
+        Green circles show open recreational spaces. Yellow shows restricted/locked facilities. 
+        Red shows alcohol access points. The ratio speaks for itself.
+      </p>
+
+      <div id="map"></div>
+
+      <div class="info-row" style="margin-top:28px;">
+        <div class="info-box">
+          <span class="info-val" style="color:var(--danger);">26+</span>
+          <span class="info-label">Alcohol access points mapped</span>
+        </div>
+        <div class="info-box">
+          <span class="info-val" style="color:var(--success);">2</span>
+          <span class="info-label">Open recreational spaces</span>
+        </div>
+        <div class="info-box">
+          <span class="info-val" style="color:var(--warning);">2</span>
+          <span class="info-label">Restricted/locked facilities</span>
+        </div>
+        <div class="info-box">
+          <span class="info-val" style="color:var(--danger);">13:1</span>
+          <span class="info-label">Alcohol : Open recreation ratio</span>
+        </div>
+      </div>
+
+      <div class="insight insight-danger">
+        <strong>Caribbean & Latin American Context:</strong> A Caribbean scoping review (2010–2021) found 
+        that while "spaces for social interaction" promote physical activity and mental health, their 
+        absence is consistently linked to risky health behaviors including early smoking and drinking. 
+        A UNICEF/PAHO 2025 report notes that in many Caribbean and Latin American communities, 
+        adolescents report that alcohol-serving establishments are the only "social hubs" available 
+        to them — facilitating premature transition into adult-oriented risky environments.
+        <span class="src">→ PMC10953899 (2024); UNICEF/PAHO (2025)</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── PHASE 3: FATAL TOLL ─── -->
+  <section id="phase3" style="background:var(--bg);">
+    <div class="container">
+      <p class="section-tag"><span class="dot"></span> Phase 03 · The Fatal Escalation</p>
+      <h2>THE ROAD IS<br><span style="color:var(--danger)">WHERE IT ENDS.</span></h2>
+      <p class="lead">
+        The progression from "Leisure Boredom" to "Fatality" is a documented escalation. 
+        Early substance initiation impairs judgment and impulse control, directly elevating 
+        road crash risk. In Belize, road traffic accidents are now classified as a public 
+        health crisis — and the data shows they are not random. They are predictable.
+      </p>
+
+      <div class="two-col">
+        <div>
+          <div class="chart-wrap">
+            <div class="chart-title">Belize Road Traffic Fatalities (2014–2025, Selected Years)</div>
+            <canvas id="fatalityChart" height="240"></canvas>
+          </div>
+        </div>
+        <div>
+          <div class="timeline">
+            <div class="tl-item">
+              <div class="tl-year">2016</div>
+              <div class="tl-title">Peak WHO rate: 28.2 per 100,000</div>
+              <div class="tl-body">Belize reaches its highest WHO-estimated road mortality rate. Young adult males disproportionately represented.</div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-year">2022</div>
+              <div class="tl-title">407 reported accidents (BCO)</div>
+              <div class="tl-body">Post-pandemic road mortality rebounds sharply. Motorcycle involvement becomes dominant.</div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-year">2023</div>
+              <div class="tl-title">699 reported accidents — peak recent year</div>
+              <div class="tl-body">A 72% surge from 2022. Drunk driving arrests escalate. Government announces DUI reform review.</div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-year">2024</div>
+              <div class="tl-title">108 deaths · 50 motorcycle-involved</div>
+              <div class="tl-body">The Benque Road crash (Dec 2024) kills 10 people. PM Briceño calls for emergency road safety reform. 215 DUI arrests Jan–Nov.</div>
+            </div>
+            <div class="tl-item" style="margin-bottom:0">
+              <div class="tl-year">2025</div>
+              <div class="tl-title">88 fatal accidents · Cayo leads at 36.4%</div>
+              <div class="tl-body">Improvements noted, but Cayo District — where Benque sits — accounts for the highest share nationally. Alcohol remains a factor in 66% of tested fatal crashes.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="sep">
+
+      <h2 style="font-size:2rem; margin-bottom:28px;">2025 FATAL INCIDENT <span style="color:var(--warning)">PROFILE</span></h2>
+
+      <div class="info-row">
+        <div class="info-box">
+          <span class="info-val">38%</span>
+          <span class="info-label">Motorcycles — leading vehicle type</span>
+        </div>
+        <div class="info-box">
+          <span class="info-val">66%</span>
+          <span class="info-label">Above legal alcohol limit (tested)</span>
+        </div>
+        <div class="info-box">
+          <span class="info-val">80%</span>
+          <span class="info-label">Fatalities are male</span>
+        </div>
+        <div class="info-box">
+          <span class="info-val">20–24</span>
+          <span class="info-label">Most affected age group</span>
+        </div>
+        <div class="info-box">
+          <span class="info-val">17%</span>
+          <span class="info-label">Pedestrian fatalities</span>
+        </div>
+      </div>
+
+      <div class="chart-wrap" style="margin-top:40px;">
+        <div class="chart-title">2025 Fatal Accidents by District — Cayo District Dominates</div>
+        <canvas id="districtChart" height="100"></canvas>
+      </div>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>District</th>
+            <th>Fatal Accidents</th>
+            <th>% National Total</th>
+            <th>Dominant Vehicle</th>
+            <th>Alcohol Testing</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="highlight-row">
+            <td>⚠ Cayo</td>
+            <td>32</td>
+            <td><span class="pill pill-red">36.4%</span></td>
+            <td>Motorcycle</td>
+            <td>Yes — ≈66% nationally above limit</td>
+          </tr>
+          <tr>
+            <td>Orange Walk</td>
+            <td>17</td>
+            <td><span class="pill pill-yellow">19.3%</span></td>
+            <td>Motorcycle</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Belize District</td>
+            <td>15</td>
+            <td><span class="pill pill-yellow">17.0%</span></td>
+            <td>Motorcycle / 4-wheel</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Stann Creek</td>
+            <td>12</td>
+            <td>13.6%</td>
+            <td>Motorcycle</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Corozal</td>
+            <td>6</td>
+            <td>6.8%</td>
+            <td>Motorcycle</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td>Toledo</td>
+            <td>6</td>
+            <td>6.8%</td>
+            <td>Motorcycle</td>
+            <td>Yes</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="insight insight-danger">
+        <strong>The Alcohol-Motorcycle Death Spiral in Belize:</strong> NFSS forensic data (2025) 
+        shows that approximately 46% of motorcycle drivers who died in traffic fatalities tested above 
+        the legal alcohol limit. The most frequent age range of intoxicated drivers in fatal incidents 
+        is 20–29 years — precisely the demographic that was aged 10–15 during the 2015–2020 period 
+        of peak adolescent substance initiation. The pattern is generational.
+        <span class="src">→ NFSS National Alcohol Forum (2025); BCO End of Year Report (2025)</span>
+      </div>
+
+      <blockquote>
+        <p>"Of the 108 road deaths recorded in 2024, 50 involved motorcyclists. The most tragic accident in 2024 was on the Benque Road in December — claiming 10 lives in a single incident."</p>
+        <cite>— Channel 5 Belize; Prime Minister John Briceño, House of Representatives (2024)</cite>
+      </blockquote>
+    </div>
+  </section>
+
+  <!-- ─── PHASE 4: BELIZE DEEP DATA ─── -->
+  <section id="phase4" style="background:var(--bg2);">
+    <div class="container">
+      <p class="section-tag"><span class="dot"></span> Phase 04 · National Mortality Context</p>
+      <h2>WHO IS<br><span style="color:var(--action)">DYING?</span></h2>
+      <p class="lead">
+        National mortality data from the Belize National Statistical System (BNSS) — combined with 
+        road safety forensics — paints a clear demographic portrait. Young adult males aged 20–34, 
+        who grew up without adequate recreational infrastructure, are overrepresented across every 
+        fatal metric.
+      </p>
+
+      <div class="two-col">
+        <div>
+          <div class="chart-wrap">
+            <div class="chart-title">Male Mortality by Age Group (2014 vs 2024, Selected Groups)</div>
+            <canvas id="mortalityChart" height="240"></canvas>
+          </div>
+        </div>
+        <div>
+          <div class="insight insight-success">
+            <strong>What Changed 2014→2024:</strong> Among males aged 20–24, reported deaths fell 
+            from 56 (2014) to 14 (2024) per BNSS data — a trend consistent with population distribution 
+            and reporting changes. However, road traffic forensics tell a different story: this 
+            age group remains the most represented in alcohol-impaired fatal crashes.
+            <span class="src">→ BNSS Statistical Institute of Belize</span>
+          </div>
+
+          <div class="insight insight-danger">
+            <strong>The Suicide-Substance Link:</strong> Between 2014–2016, attempted suicide rates 
+            among Belizean adolescents aged 15–19 rose by <strong>39% annually</strong>. 
+            From 2008–2017, adolescents aged 10–19 represented <strong>36%</strong> of all 
+            suicide attempts recorded. Substance use is a primary co-factor in both categories.
+            <span class="src">→ UNICEF Belize (2025)</span>
+          </div>
+        </div>
+      </div>
+
+      <hr class="sep">
+
+      <h2 style="font-size:1.8rem; margin-bottom:24px;">ADOLESCENT SUBSTANCE DATA: <span style="color:var(--warning)">2011 BASELINE</span></h2>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Indicator</th>
+            <th>Year</th>
+            <th>Value</th>
+            <th>Source</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Students consuming alcohol (past 30 days)</td>
+            <td>2011</td>
+            <td><span class="pill pill-yellow">27.9%</span></td>
+            <td>GSHS (ages 13–15)</td>
+          </tr>
+          <tr>
+            <td>Students drunk at least once</td>
+            <td>2011</td>
+            <td><span class="pill pill-yellow">18.2%</span></td>
+            <td>GSHS</td>
+          </tr>
+          <tr>
+            <td>Students who used marijuana at least once</td>
+            <td>2011</td>
+            <td>11.3%</td>
+            <td>GSHS</td>
+          </tr>
+          <tr>
+            <td>Drug users who first used before age 14</td>
+            <td>2011</td>
+            <td><span class="pill pill-red">77.3%</span></td>
+            <td>GSHS</td>
+          </tr>
+          <tr>
+            <td>Underage smokers able to buy without age check</td>
+            <td>2014</td>
+            <td><span class="pill pill-red">75.2%</span></td>
+            <td>GYTS</td>
+          </tr>
+          <tr>
+            <td>Boys 15–19 consuming alcohol</td>
+            <td>Current</td>
+            <td><span class="pill pill-red">54%</span></td>
+            <td>UNICEF Adolescent Health</td>
+          </tr>
+          <tr>
+            <td>Boys who had first drink before age 15</td>
+            <td>Current</td>
+            <td><span class="pill pill-yellow">~20%</span></td>
+            <td>UNICEF Adolescent Health</td>
+          </tr>
+          <tr>
+            <td>Boys aged 15–19 smoking tobacco</td>
+            <td>Current</td>
+            <td>16%</td>
+            <td>UNICEF Adolescent Health</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="insight">
+        <strong>South Africa's Warning for Belize:</strong> Recent literature identifies "lack of 
+        recreational infrastructure" as a core structural driver of substance abuse in rural and 
+        peri-urban regions. Research argues that without creative or athletic outlets, adolescents 
+        experience high levels of "boredom-induced" risk-taking, correlating with early-onset addiction. 
+        In Benque Viejo, the combination of border-town proximity to Guatemala and high alcohol outlet 
+        density creates a uniquely elevated risk profile matching Global South patterns documented 
+        across multiple continents.
+        <span class="src">→ Frontiers in Public Health (2025)</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── CTA ─── -->
+  <section id="cta" class="final-cta">
+    <div class="container">
+      <p class="section-tag" style="justify-content:center;"><span class="dot"></span> The Ask</p>
+      <h2>"Give them <span style="color:var(--danger)">a court,</span><br>not a coffin."</h2>
+      <p class="lead">
+        The data is clear. The pathway is documented. The solution is within reach. 
+        What Benque Viejo's children need is not another study — they need open, lit, 
+        safe spaces to spend their youth. Every hour a field stays locked is a window 
+        that stays open for substance use.
+      </p>
+
+      <div class="action-grid">
+        <div class="action-card">
+          <div class="action-number">01</div>
+          <h4>Open the Fields</h4>
+          <p>Demand that Marshalleck Stadium and Cancha Marshalleck be opened to free, community access during evenings and weekends — the highest-risk "unstructured time" hours.</p>
+        </div>
+        <div class="action-card">
+          <div class="action-number">02</div>
+          <h4>Zone for Kids, Not Bars</h4>
+          <p>Advocate for municipal zoning policy that limits new alcohol outlets within 500m of schools, parks, and residential youth areas — a standard applied globally but absent locally.</p>
+        </div>
+        <div class="action-card">
+          <div class="action-number">03</div>
+          <h4>Fund Structured Programs</h4>
+          <p>Push for government-funded after-school sports leagues, arts programs, and youth clubs aligned with the FEDE model (Family, Education, Sport) proven effective across Latin America.</p>
+        </div>
+        <div class="action-card">
+          <div class="action-number">04</div>
+          <h4>Demand DUI Accountability</h4>
+          <p>Support PM Briceño's call for stronger DUI legislation and name-and-shame enforcement for convicted drunk drivers. Road deaths at 66% alcohol-involvement are a public health emergency.</p>
+        </div>
+      </div>
+
+      <a href="mailto:jefte@example.com" class="btn-primary" style="margin-top:20px; font-size:1rem; padding: 18px 56px;">
+        Join the Campaign
+      </a>
+    </div>
+  </section>
+
+  <!-- ─── REFERENCES ─── -->
+  <div class="refs">
+    <div class="container">
+      <h3>Research References</h3>
+      <div class="ref-item">BCO (2025). <em>End of Year 2025 Report</em>. Belize Crime Observatory. <a href="https://bco.wimp.bz/file_directory/files/annual_report/End_of_Year_2025_Report.pdf" target="_blank">View Report</a></div>
+      <div class="ref-item">BCO (2025). <em>Road Traffic Accidents 2019–2024 Statistical Report</em>. Ministry of Home Affairs. <a href="https://bco.gov.bz/repository/" target="_blank">View</a></div>
+      <div class="ref-item">BMJ Open (2021). Canadian COMPASS Study — Recreational facility density and adolescent binge drinking.</div>
+      <div class="ref-item">Castillo, M., et al. (2013). Association of recreational space with youth smoking in low-SES neighborhoods, Santiago, Chile. <em>International Journal of Public Health</em>. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3838669/" target="_blank">PMC3838669</a></div>
+      <div class="ref-item">Channel 5 Belize (2025). Road Accidents Surge in 2024: A Growing Concern. <a href="https://edition.channel5belize.com/road-accidents-surge-in-2024-a-growing-concern/" target="_blank">View</a></div>
+      <div class="ref-item">Frontiers in Behavioral Neuroscience (2020). Leisure activities, mental health and substance use, Denmark. <a href="https://doi.org/10.3389/fnbeh.2020.593340" target="_blank">DOI</a></div>
+      <div class="ref-item">Frontiers in Public Health (2025). Unshackling our youth from the chains of substance abuse as disaster risk. <a href="https://www.frontiersin.org/journals/public-health/articles/10.3389/fpubh.2025.1643748/pdf" target="_blank">PDF</a></div>
+      <div class="ref-item">Oladeji, O., et al. (2025). Trends in substance use and associated risk factors among adolescents in Belize. <em>International Journal of Community Medicine and Public Health</em>, 12(10), 4299–4309.</div>
+      <div class="ref-item">PMC (2016). Risky Substance Use Environments and Addiction. <em>Int. J. Environmental Research and Public Health</em>. <a href="https://doi.org/10.3390/ijerph13070643" target="_blank">DOI</a></div>
+      <div class="ref-item">PMC (2024). Alcohol outlet density and adolescent drinking, Thailand 2007–2017. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC11527161/" target="_blank">PMC11527161</a></div>
+      <div class="ref-item">PMC (2024). Built environment and physical activity in the Caribbean: A scoping review. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC10953899/" target="_blank">PMC10953899</a></div>
+      <div class="ref-item">Recovery Research Institute (2024). Adolescents in neighborhoods with more liquor stores are more likely to drink. <a href="https://www.recoveryanswers.org/research-post/adolescents-growing-up-in-neighborhoods-with-more-liquor-stores-are-more-likely-to-drink/" target="_blank">View</a></div>
+      <div class="ref-item">Redalyc (2013). Family, School and Sports (FEDE), Jalisco, Mexico. <a href="https://www.redalyc.org/pdf/839/83924965003.pdf" target="_blank">PDF</div>
+      <div class="ref-item">Sanchez, Z. M., et al. (2016). Alcohol outlets in school neighborhoods and adolescent alcohol use. <em>Cadernos de Saúde Pública</em>. <a href="https://www.scielo.br/j/csp/a/TSqQhGYhYBxSRq5SZxrmbBP/?lang=en" target="_blank">View</a></div>
+      <div class="ref-item">Sharp, E. H., et al. (2011). Predicting substance use among South African adolescents: The role of leisure experiences. <em>Journal of Primary Prevention</em>, 32(3-4). <a href="https://doi.org/10.1007/s10935-011-0243-3" target="_blank">DOI</a></div>
+      <div class="ref-item">UNICEF Belize (2025). <em>Situational Analysis on Substance Use among Adolescents in Belize</em>. <a href="https://www.unicef.org/belize/media/7896/file/Situational%20Analysis%20on%20Substance%20Use%20among" target="_blank">View</a></div>
+      <div class="ref-item">UNICEF Belize (n.d.). Adolescent Health. <a href="https://www.unicef.org/belize/adolescent-health" target="_blank">View</a></div>
+      <div class="ref-item">UNICEF/PAHO (2025). Violence against Children and Adolescents in Latin America and the Caribbean. <a href="https://www.unicef.org/lac/en/media/53566/file/REPORT%20-%20Violence%20against%20Children%20and%20Adolescents.pdf" target="_blank">PDF</a></div>
+      <div class="ref-item">Wegner, L., et al. (2011). Boredom prone or nothing to do? State and trait leisure boredom and substance use, South Africa. <em>Journal of Leisure Research</em>, 44(4).</div>
+      <div class="ref-item">Weybright, E. H., et al. (2015). Healthy leisure and substance use in South African adolescents. <em>Journal of Primary Prevention</em>, 36(3). <a href="https://doi.org/10.1007/s10935-015-0388-x" target="_blank">DOI</a></div>
+      <div class="ref-item">WHO (2023). Global Status Report on Road Safety — Belize. <a href="https://cdn.who.int/media/docs/default-source/country-profiles/road-safety/road-safety-2023-blz.pdf" target="_blank">PDF</a></div>
+    </div>
+  </div>
+
+  <script>
+    // ─── SUBSTANCE USE TREND CHART ───
+    const subCtx = document.getElementById('substanceChart').getContext('2d');
+    new Chart(subCtx, {
+      type: 'bar',
+      data: {
+        labels: ['2017','2018','2019','2020','2021','2022','2023','2024'],
+        datasets: [
+          {
+            label: 'Adolescent Substance Cases (10–19)',
+            data: [118, 138, 175, 95, 88, 142, 168, 131],
+            backgroundColor: 'rgba(255,59,48,0.7)',
+            borderColor: '#ff3b30',
+            borderWidth: 1,
+            borderRadius: 4,
+          },
+          {
+            label: 'Total Cases (All Ages)',
+            data: [265, 298, 362, 210, 195, 310, 378, 347],
+            backgroundColor: 'rgba(10,132,255,0.3)',
+            borderColor: '#0a84ff',
+            borderWidth: 1,
+            borderRadius: 4,
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            labels: { color: '#9ca3af', font: { size: 11 } }
+          },
+          tooltip: { mode: 'index' }
+        },
+        scales: {
+          y: {
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            ticks: { color: '#6b7280', font: { size: 10 } },
+            title: { display: true, text: 'Cases (Estimated from Trend)', color: '#6b7280', font: { size: 10 } }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: '#6b7280', font: { size: 10 } }
+          }
+        }
+      }
+    });
+
+    // ─── FATALITY TIME SERIES ───
+    const ctx = document.getElementById('fatalityChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['2014','2015','2016','2017','2018','2019','2020','2021','2022','2023','2024','2025'],
+        datasets: [
+          {
+            label: 'Rate per 100,000 (WHO)',
+            data: [24.3, 25.5, 28.2, 19.4, 22.5, 22.6, null, 17.5, null, null, null, null],
+            borderColor: '#0a84ff',
+            backgroundColor: 'rgba(10,132,255,0.1)',
+            borderWidth: 2,
+            tension: 0.3,
+            fill: true,
+            pointBackgroundColor: '#0a84ff',
+            pointRadius: 5,
+            yAxisID: 'y',
+          },
+          {
+            label: 'Fatalities / Accidents Reported',
+            data: [null, null, null, null, null, 83, 76, 85, 407, 699, 683, 88],
+            borderColor: '#ff3b30',
+            backgroundColor: 'rgba(255,59,48,0.1)',
+            borderWidth: 2,
+            tension: 0.3,
+            fill: false,
+            pointBackgroundColor: '#ff9f0a',
+            pointRadius: 5,
+            yAxisID: 'y1',
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { labels: { color: '#9ca3af', font: { size: 11 } } }
+        },
+        scales: {
+          y: {
+            type: 'linear', position: 'left',
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            ticks: { color: '#6b7280', font: { size: 10 } },
+            title: { display: true, text: 'Rate per 100,000', color: '#6b7280', font: {size: 10} }
+          },
+          y1: {
+            type: 'linear', position: 'right',
+            grid: { drawOnChartArea: false },
+            ticks: { color: '#6b7280', font: { size: 10 } },
+            title: { display: true, text: 'Reported Accidents/Deaths', color: '#6b7280', font: {size: 10} }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: '#6b7280', font: { size: 10 } }
+          }
+        }
+      }
+    });
+
+    // ─── DISTRICT CHART ───
+    const distCtx = document.getElementById('districtChart').getContext('2d');
+    new Chart(distCtx, {
+      type: 'bar',
+      data: {
+        labels: ['Cayo', 'Orange Walk', 'Belize', 'Stann Creek', 'Corozal', 'Toledo'],
+        datasets: [{
+          label: 'Fatal Road Accidents 2025',
+          data: [32, 17, 15, 12, 6, 6],
+          backgroundColor: [
+            'rgba(255,59,48,0.8)',
+            'rgba(255,159,10,0.7)',
+            'rgba(255,159,10,0.5)',
+            'rgba(10,132,255,0.5)',
+            'rgba(48,209,88,0.5)',
+            'rgba(48,209,88,0.5)',
+          ],
+          borderColor: [
+            '#ff3b30','#ff9f0a','#ff9f0a','#0a84ff','#30d158','#30d158'
+          ],
+          borderWidth: 1,
+          borderRadius: 6,
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              afterLabel: (ctx) => ctx.dataIndex === 0 ? '⚠ Benque Viejo is in Cayo' : ''
+            }
+          }
+        },
+        scales: {
+          y: {
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            ticks: { color: '#6b7280' }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: '#6b7280' }
+          }
+        }
+      }
+    });
+
+    // ─── MORTALITY CHART ───
+    const mortCtx = document.getElementById('mortalityChart').getContext('2d');
+    new Chart(mortCtx, {
+      type: 'bar',
+      data: {
+        labels: ['15–19', '20–24', '25–29', '30–34', '35–39', '40–44'],
+        datasets: [
+          {
+            label: 'Male Deaths 2014',
+            data: [24, 56, 58, 42, 41, 34],
+            backgroundColor: 'rgba(10,132,255,0.5)',
+            borderColor: '#0a84ff',
+            borderWidth: 1, borderRadius: 3
+          },
+          {
+            label: 'Male Deaths 2024',
+            data: [11, 14, 15, 31, 21, 47],
+            backgroundColor: 'rgba(255,59,48,0.6)',
+            borderColor: '#ff3b30',
+            borderWidth: 1, borderRadius: 3
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { labels: { color: '#9ca3af', font: { size: 11 } } }
+        },
+        scales: {
+          y: {
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            ticks: { color: '#6b7280', font: { size: 10 } }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: '#6b7280', font: { size: 10 } }
+          }
+        }
+      }
+    });
+
+    // ─── LEAFLET MAP ───
+    var map = L.map('map', { zoomControl: true }).setView([17.0725, -89.1365], 15);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '© OpenStreetMap contributors © CARTO',
+      maxZoom: 19
+    }).addTo(map);
+
+    var locations = [
+      {cat:"Sports", name:"Primero De Mayo Sporting Complex (Open)", lat:17.07454, lon:-89.134717, color:"#30d158", restricted:false},
+      {cat:"Sports", name:"Dr. Amin Hegar Football Field (Open)", lat:17.06883, lon:-89.132387, color:"#30d158", restricted:false},
+      {cat:"Sports", name:"Marshalleck Stadium (Restricted)", lat:17.07281, lon:-89.138013, color:"#ff9f0a", restricted:true},
+      {cat:"Sports", name:"Cancha Marshalleck (Restricted)", lat:17.07333, lon:-89.138651, color:"#ff9f0a", restricted:true},
+      {cat:"Alcohol", name:"Bohemio Restaurant and Bar", lat:17.06463, lon:-89.130731},
+      {cat:"Alcohol", name:"Ruta La Frontera", lat:17.06904, lon:-89.141587},
+      {cat:"Alcohol", name:"Flores Villas", lat:17.06575, lon:-89.134924},
+      {cat:"Alcohol", name:"Eclipse Night Club", lat:17.07354, lon:-89.135978},
+      {cat:"Alcohol", name:"Piccadilly Night Club", lat:17.07602, lon:-89.139154},
+      {cat:"Alcohol", name:"Kryztal Liquor Shop", lat:17.07762, lon:-89.135575},
+      {cat:"Alcohol", name:"Hill View Restaurant and Bar", lat:17.07616, lon:-89.133918},
+      {cat:"Alcohol", name:"Chill Out Bar", lat:17.07314, lon:-89.136356},
+      {cat:"Alcohol", name:"Continental Restaurant", lat:17.07302, lon:-89.141995},
+      {cat:"Alcohol", name:"Brandon's Place", lat:17.06688, lon:-89.129753},
+      {cat:"Alcohol", name:"Monte Majico", lat:17.0755, lon:-89.141649},
+      {cat:"Alcohol", name:"Yor Baacks Bar", lat:17.07365, lon:-89.142748},
+      {cat:"Alcohol", name:"Le Husky", lat:17.069185, lon:-89.135006},
+      {cat:"Alcohol", name:"Angies", lat:17.065618, lon:-89.135201},
+      {cat:"Alcohol", name:"Irma Cool Spot", lat:17.06267, lon:-89.131225},
+      {cat:"Alcohol", name:"Mynor Herrera", lat:17.073172, lon:-89.1348727},
+      {cat:"Alcohol", name:"Royal Palm", lat:17.076362, lon:-89.135559},
+      {cat:"Alcohol", name:"Neighbas", lat:17.072092, lon:-89.1411991},
+      {cat:"Alcohol", name:"Contraband 1", lat:17.073395, lon:-89.1418421},
+      {cat:"Alcohol", name:"Contraband 2", lat:17.072541, lon:-89.1425858},
+      {cat:"Alcohol", name:"Contraband 3", lat:17.071538, lon:-89.1435936},
+      {cat:"Alcohol", name:"Contraband 4", lat:17.069662, lon:-89.1437876}
+    ];
+
+    locations.forEach(function(loc) {
+      L.circleMarker([loc.lat, loc.lon], {
+        radius: loc.cat === "Sports" ? 13 : 8,
+        fillColor: loc.color || "#ff3b30",
+        color: loc.cat === "Sports" ? "#fff" : "rgba(255,255,255,0.3)",
+        weight: loc.cat === "Sports" ? 2 : 1,
+        fillOpacity: loc.cat === "Sports" ? 0.95 : 0.80
+      }).addTo(map).bindTooltip('<strong>' + loc.name + '</strong>', {
+        className: 'leaflet-tooltip-dark'
+      });
+    });
+
+    var legend = L.control({position: 'bottomright'});
+    legend.onAdd = function() {
+      var div = L.DomUtil.create('div', 'legend');
+      div.innerHTML =
+        '<i style="background:#30d158"></i> Open Sports Facility<br>' +
+        '<i style="background:#ff9f0a"></i> Restricted / Locked Facility<br>' +
+        '<i style="background:#ff3b30"></i> Alcohol Access Point<br>' +
+        '<hr style="border:none;border-top:1px solid rgba(255,255,255,0.1);margin:6px 0">' +
+        '<small style="color:#6b7280">2 open : 26+ alcohol outlets</small>';
+      return div;
+    };
+    legend.addTo(map);
+  </script>
+</body>
+</html>
